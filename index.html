@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>股東會通知及過戶停止日期計算器</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; }
+    label, select, input { display: block; margin: 1em 0 0.5em; }
+    button { padding: 0.5em 1em; }
+    .result { margin-top: 1.5em; background: #f8f8f8; padding: 1em; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h2>📅 股東會通知及過戶停止日期計算器</h2>
+
+  <label for="company">選擇公司類型：</label>
+  <select id="company">
+    <option value="公開">公開發行公司</option>
+    <option value="非公開">非公開發行公司</option>
+  </select>
+
+  <label for="meeting">選擇會議類型：</label>
+  <select id="meeting">
+    <option value="常會">股東常會</option>
+    <option value="臨時會">股東臨時會</option>
+  </select>
+
+  <label for="meetingDate">預計股東會日期：</label>
+  <input type="date" id="meetingDate" required>
+
+  <button onclick="calculate()">計算日期</button>
+
+  <div class="result" id="output"></div>
+
+  <script>
+    function calculate() {
+      const company = document.getElementById("company").value;
+      const meeting = document.getElementById("meeting").value;
+      const dateStr = document.getElementById("meetingDate").value;
+
+      if (!dateStr) {
+        alert("請選擇股東會日期");
+        return;
+      }
+
+      const meetingDate = new Date(dateStr);
+      const output = document.getElementById("output");
+
+      let notifyDays, stopDays = 30;
+
+      // 計算通知期限
+      if (meeting === "常會") {
+        notifyDays = company === "公開" ? 30 : 20;
+      } else {
+        notifyDays = company === "公開" ? 15 : 10;
+      }
+
+      // 計算日期
+      const notifyDate = new Date(meetingDate);
+      notifyDate.setDate(notifyDate.getDate() - notifyDays);
+
+      const stopStart = new Date(meetingDate);
+      stopStart.setDate(stopStart.getDate() - stopDays);
+
+      // 格式化日期
+      const fmt = d => d.toISOString().split("T")[0];
+
+      output.innerHTML = `
+        <strong>📌 結果：</strong><br>
+        ✅ 過戶停止期間：<b>${fmt(stopStart)}</b> 起至 <b>${fmt(meetingDate)}</b><br>
+        ✅ 最遲召集通知寄出日：<b>${fmt(notifyDate)}</b><br>
+        ⏳ 可接受提案公告日建議早於：<b>${fmt(stopStart)}</b>
+      `;
+    }
+  </script>
+</body>
+</html>
